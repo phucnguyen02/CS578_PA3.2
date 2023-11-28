@@ -14,6 +14,8 @@ import java.net.InetSocketAddress;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.datastax.driver.core.*;
+
 /**
  * This class should implement your {@link Replicable} database app if you wish
  * to use Gigapaxos.
@@ -48,6 +50,9 @@ public class MyDBReplicableAppGP implements Replicable {
 	 */
 	public static final int SLEEP = 1000;
 
+	private Cluster cluster;
+    private Session session;
+
 	/**
 	 * All Gigapaxos apps must either support a no-args constructor or a
 	 * constructor taking a String[] as the only argument. Gigapaxos relies on
@@ -61,7 +66,9 @@ public class MyDBReplicableAppGP implements Replicable {
 	 */
 	public MyDBReplicableAppGP(String[] args) throws IOException {
 		// TODO: setup connection to the data store and keyspace
-		throw new RuntimeException("Not yet implemented");
+		this.cluster = Cluster.builder().addContactPoint("127.0.0.1").build();
+		this.session = this.cluster.connect(args[0]);
+        this.session.execute("create table if not exists users (lastname text, age int, city text, email text, firstname text, PRIMARY KEY (lastname))");
 	}
 
 	/**
@@ -78,6 +85,17 @@ public class MyDBReplicableAppGP implements Replicable {
 	@Override
 	public boolean execute(Request request, boolean b) {
 		// TODO: submit request to data store
+		try{
+			String reqString = request.toString();
+			this.session.execute(reqString);
+			if(!b){
+
+			}
+		}
+		catch(IOException e){
+			e.printStackTrace();
+		}
+		
 		throw new RuntimeException("Not yet implemented");
 	}
 
