@@ -156,7 +156,11 @@ public class MyDBReplicableAppGP implements Replicable {
 		System.out.println("s1: "+ s1);
 		try{
 			if (s1.length() > 0 && !s1.equals("{}")){
-				this.session.execute(s1);
+				String[] commands = s1.split("\n");
+				for (String cmd : commands){
+					System.out.println(cmd);
+					this.session.execute(cmd);
+				}
 			}
 		}
 		catch(Exception e){
