@@ -13,9 +13,11 @@ import edu.umass.cs.gigapaxos.paxospackets.RequestPacket;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.Set;
 import java.util.*;
 import java.lang.Integer;
+
 
 import com.datastax.driver.core.*;
 
@@ -56,8 +58,8 @@ public class MyDBReplicableAppGP implements Replicable {
 	private Cluster cluster;
     private Session session;
 	private String keyspace;
-	private HashMap<String, String> states;
-	private HashMap<String, Pair<String, ArrayList<Integer>> > eventHash;
+	private HashMap<String, ArrayList<ArrayList<Object>>> states;
+	private HashMap<String, ArrayList<Object>> eventHash;
 	private int stateNumber = 0;
 
 	/**
@@ -76,7 +78,7 @@ public class MyDBReplicableAppGP implements Replicable {
 		this.cluster = Cluster.builder().addContactPoint("127.0.0.1").build();
 		this.keyspace = args[0];
 		this.session = this.cluster.connect(this.keyspace);
-		this.states = new HashMap<String, String>();
+		this.states = new HashMap<String, ArrayList<ArrayList<Object>>>();
 		this.stateNumber = 0;
         this.session.execute("create table if not exists users (lastname text, age int, city text, email text, firstname text, PRIMARY KEY (lastname))");
 	}
@@ -128,13 +130,15 @@ public class MyDBReplicableAppGP implements Replicable {
 	public String checkpoint(String s) {
 		// TODO:
 		ResultSet results = this.session.execute("SELECT * FROM " + this.keyspace + ".grade");
-		String fullState = "";
+		ArrayList<ArrayList<Object>> fullState = new ArrayList<ArrayList<Object>>();
 		for (Row row : results) {
-			System.out.println("ID : " + row.getInt("id"));
-			System.out.println(" Events: " + row.getList("events", Integer.class));
-			fullState += row.toString();
+			int Id = row.getInt("id"));
+			List<Integer>events = row.getList("events", Integer.class);
+			ArrayList<Object> rowList = new ArrayList<Object>();
+			rowList.add(Id);
+			rowList.add(events);
+			fullState.add(rowList);
 		}
-		//System.out.println("Full state: " + fullState);
 		String key = "state" + this.stateNumber;
 		this.states.put(s, fullState);
 		this.stateNumber++;
@@ -153,7 +157,7 @@ public class MyDBReplicableAppGP implements Replicable {
 		// TODO:
 		try{
 			System.out.println("State name: " + s + ", State: " + s1);
-			this.states.put(s, s1);
+			this.states.get(s, s1);
 		}
 		catch(Exception e){
 			return false;
