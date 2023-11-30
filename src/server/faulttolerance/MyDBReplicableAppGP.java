@@ -139,10 +139,8 @@ public class MyDBReplicableAppGP implements Replicable {
 			rowList.add(events);
 			fullState.add(rowList);
 		}
-		String key = "state" + this.stateNumber;
 		this.states.put(s, fullState);
-		this.stateNumber++;
-		return key;
+		return s;
 	}
 
 	/**
@@ -157,7 +155,7 @@ public class MyDBReplicableAppGP implements Replicable {
 		// TODO:
 		try{
 			System.out.println("State name: " + s + ", State: " + s1);
-			this.states.get(s, s1);
+			this.states.get(s1);
 		}
 		catch(Exception e){
 			return false;
