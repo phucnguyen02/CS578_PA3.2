@@ -117,7 +117,7 @@ public class MyDBReplicableAppGP implements Replicable {
 	@Override
 	public String checkpoint(String s) {
 		// TODO:
-		throw new RuntimeException("Not yet implemented");
+		return "";
 	}
 
 	/**
@@ -130,8 +130,7 @@ public class MyDBReplicableAppGP implements Replicable {
 	@Override
 	public boolean restore(String s, String s1) {
 		// TODO:
-		throw new RuntimeException("Not yet implemented");
-
+		return true;
 	}
 
 
