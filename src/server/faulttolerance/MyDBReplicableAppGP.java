@@ -84,19 +84,7 @@ public class MyDBReplicableAppGP implements Replicable {
 	 */
 	@Override
 	public boolean execute(Request request, boolean b) {
-		// TODO: submit request to data store
-		try{
-			String reqString = request.toString();
-			this.session.execute(reqString);
-			if(!b){
-
-			}
-		}
-		catch(IOException e){
-			e.printStackTrace();
-		}
-		
-		throw new RuntimeException("Not yet implemented");
+		return this.execute(request);
 	}
 
 	/**
@@ -109,7 +97,15 @@ public class MyDBReplicableAppGP implements Replicable {
 	@Override
 	public boolean execute(Request request) {
 		// TODO: execute the request by sending it to the data store
-		throw new RuntimeException("Not yet implemented");
+		try{
+			// execute request here
+			String reqString = request.toString();
+			this.session.execute(reqString);
+		}
+		catch(Exception e){
+			return false;
+		}
+		return true;
 	}
 
 	/**
