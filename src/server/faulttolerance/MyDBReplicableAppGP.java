@@ -58,7 +58,7 @@ public class MyDBReplicableAppGP implements Replicable {
 	private Cluster cluster;
     private Session session;
 	private String keyspace;
-	private HashMap<String, ArrayList<ArrayList<Object>>> states;
+	private HashMap<String, String> states;
 	private HashMap<String, ArrayList<Object>> eventHash;
 	private int stateNumber = 0;
 
@@ -130,17 +130,15 @@ public class MyDBReplicableAppGP implements Replicable {
 	public String checkpoint(String s) {
 		// TODO:
 		ResultSet results = this.session.execute("SELECT * FROM " + this.keyspace + ".grade");
-		ArrayList<ArrayList<Object>> fullState = new ArrayList<ArrayList<Object>>();
+		String fullState = "";
 		for (Row row : results) {
-			int Id = row.getInt("id"));
+			int Id = row.getInt("id");
 			List<Integer>events = row.getList("events", Integer.class);
-			ArrayList<Object> rowList = new ArrayList<Object>();
-			rowList.add(Id);
-			rowList.add(events);
-			fullState.add(rowList);
+			String cmd = "update grade SET events="+ events.toString() +" where id=" + Id + ";";
+			fullState += cmd+"\n";
 		}
 		this.states.put(s, fullState);
-		return s;
+		return fullState;
 	}
 
 	/**
@@ -154,8 +152,8 @@ public class MyDBReplicableAppGP implements Replicable {
 	public boolean restore(String s, String s1) {
 		// TODO:
 		try{
-			System.out.println("State name: " + s + ", State: " + s1);
-			this.states.get(s1);
+			if (s1.length() == 0) return false;
+			this.session.execute(s1);
 		}
 		catch(Exception e){
 			return false;
