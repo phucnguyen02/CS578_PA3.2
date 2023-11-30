@@ -15,6 +15,7 @@ import java.net.InetSocketAddress;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.*;
+import java.lang.Integer;
 
 import com.datastax.driver.core.*;
 
@@ -56,6 +57,7 @@ public class MyDBReplicableAppGP implements Replicable {
     private Session session;
 	private String keyspace;
 	private HashMap<String, String> states;
+	private HashMap<String, Pair<String, ArrayList<Integer>> > eventHash;
 	private int stateNumber = 0;
 
 	/**
@@ -128,11 +130,13 @@ public class MyDBReplicableAppGP implements Replicable {
 		ResultSet results = this.session.execute("SELECT * FROM " + this.keyspace + ".grade");
 		String fullState = "";
 		for (Row row : results) {
-			System.out.println("Row : " + row.toString());
+			System.out.println("ID : " + row.getInt("id"));
+			System.out.println(" Events: " + row.getList("events", Integer.class));
 			fullState += row.toString();
 		}
+		//System.out.println("Full state: " + fullState);
 		String key = "state" + this.stateNumber;
-		this.states.put(key, fullState);
+		this.states.put(s, fullState);
 		this.stateNumber++;
 		return key;
 	}
@@ -148,6 +152,7 @@ public class MyDBReplicableAppGP implements Replicable {
 	public boolean restore(String s, String s1) {
 		// TODO:
 		try{
+			System.out.println("State name: " + s + ", State: " + s1);
 			this.states.put(s, s1);
 		}
 		catch(Exception e){
