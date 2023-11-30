@@ -147,6 +147,12 @@ public class MyDBReplicableAppGP implements Replicable {
 	@Override
 	public boolean restore(String s, String s1) {
 		// TODO:
+		try{
+			this.states.put(s, s1);
+		}
+		catch(Exception e){
+			return false;
+		}
 		return true;
 	}
 
