@@ -110,8 +110,6 @@ public class MyDBReplicableAppGP implements Replicable {
 	public boolean execute(Request request) {
 		try{
 			String reqString = ((RequestPacket) request).requestValue;
-			System.out.println(reqString);
-
 			this.session.execute(reqString);
 		}
 		catch(Exception e){
@@ -129,7 +127,6 @@ public class MyDBReplicableAppGP implements Replicable {
 	@Override
 	public String checkpoint(String s) {
 		// TODO:
-		System.out.println("INSIDE CHECKPOINT");
 		ResultSet results = this.session.execute("SELECT * FROM " + this.keyspace + ".grade");
 		String fullState = "";
 		for (Row row : results) {
@@ -152,13 +149,10 @@ public class MyDBReplicableAppGP implements Replicable {
 	@Override
 	public boolean restore(String s, String s1) {
 		// TODO:
-		System.out.println("INSIDE RESTORE");
-		System.out.println("s1: "+ s1);
 		try{
 			if (s1.length() > 0 && !s1.equals("{}")){
 				String[] commands = s1.split("\n");
 				for (String cmd : commands){
-					System.out.println(cmd);
 					this.session.execute(cmd);
 				}
 			}
