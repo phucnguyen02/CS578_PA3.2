@@ -55,9 +55,8 @@ public class StatefulAdderApp implements Replicable {
 		// Should update checkpoint state here for name, but
 		// we only expect one default service name here.
 		assert(name.equals(PaxosConfig.getDefaultServiceName())) : name;
-		jhkljhkl
 		// null state is equivalent to reinitialization
-		if(state==null || state.equals(Config.getGlobalString(PaxosConfig.PC
+		if(stat4onfig.getGlobalString(PaxosConfig.PC
 				.DEFAULT_NAME_INITIAL_STATE)))
 			this.total = 0;
 		else

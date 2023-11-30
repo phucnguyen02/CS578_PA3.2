@@ -78,7 +78,7 @@ public class MyDBReplicableAppGP implements Replicable {
 		this.cluster = Cluster.builder().addContactPoint("127.0.0.1").build();
 		this.keyspace = args[0];
 		this.session = this.cluster.connect(this.keyspace);
-		this.states = new HashMap<String, ArrayList<ArrayList<Object>>>();
+		this.states = new HashMap<String, String>();
 		this.stateNumber = 0;
         this.session.execute("create table if not exists users (lastname text, age int, city text, email text, firstname text, PRIMARY KEY (lastname))");
 	}
@@ -129,6 +129,7 @@ public class MyDBReplicableAppGP implements Replicable {
 	@Override
 	public String checkpoint(String s) {
 		// TODO:
+		System.out.println("INSIDE CHECKPOINT");
 		ResultSet results = this.session.execute("SELECT * FROM " + this.keyspace + ".grade");
 		String fullState = "";
 		for (Row row : results) {
@@ -151,9 +152,12 @@ public class MyDBReplicableAppGP implements Replicable {
 	@Override
 	public boolean restore(String s, String s1) {
 		// TODO:
+		System.out.println("INSIDE RESTORE");
+		System.out.println("s1: "+ s1);
 		try{
-			if (s1.length() == 0) return false;
-			this.session.execute(s1);
+			if (s1.length() > 0 && !s1.equals("{}")){
+				this.session.execute(s1);
+			}
 		}
 		catch(Exception e){
 			return false;
