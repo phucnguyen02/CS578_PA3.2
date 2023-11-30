@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.*;
 
 import com.datastax.driver.core.*;
 
@@ -53,6 +54,9 @@ public class MyDBReplicableAppGP implements Replicable {
 
 	private Cluster cluster;
     private Session session;
+	private String keyspace;
+	private HashMap<String, String> states;
+	private int stateNumber = 0;
 
 	/**
 	 * All Gigapaxos apps must either support a no-args constructor or a
@@ -68,7 +72,10 @@ public class MyDBReplicableAppGP implements Replicable {
 	public MyDBReplicableAppGP(String[] args) throws IOException {
 		// TODO: setup connection to the data store and keyspace
 		this.cluster = Cluster.builder().addContactPoint("127.0.0.1").build();
-		this.session = this.cluster.connect(args[0]);
+		this.keyspace = args[0];
+		this.session = this.cluster.connect(this.keyspace);
+		this.states = new HashMap<String, String>();
+		this.stateNumber = 0;
         this.session.execute("create table if not exists users (lastname text, age int, city text, email text, firstname text, PRIMARY KEY (lastname))");
 	}
 
@@ -97,9 +104,7 @@ public class MyDBReplicableAppGP implements Replicable {
 	 */
 	@Override
 	public boolean execute(Request request) {
-		// TODO: execute the request by sending it to the data store
 		try{
-			// execute request here
 			String reqString = ((RequestPacket) request).requestValue;
 			System.out.println(reqString);
 
@@ -120,7 +125,16 @@ public class MyDBReplicableAppGP implements Replicable {
 	@Override
 	public String checkpoint(String s) {
 		// TODO:
-		return "";
+		ResultSet results = this.session.execute("SELECT * FROM " + this.keyspace + ".grade");
+		String fullState = "";
+		for (Row row : results) {
+			System.out.println("Row : " + row.toString());
+			fullState += row.toString();
+		}
+		String key = "state" + this.stateNumber;
+		this.states.put(key, fullState);
+		this.stateNumber++;
+		return key;
 	}
 
 	/**
