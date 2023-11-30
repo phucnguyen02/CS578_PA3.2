@@ -8,6 +8,7 @@ import edu.umass.cs.nio.interfaces.NodeConfig;
 import edu.umass.cs.nio.nioutils.NIOHeader;
 import edu.umass.cs.nio.nioutils.NodeConfigUtils;
 import edu.umass.cs.reconfiguration.reconfigurationutils.RequestParseException;
+import edu.umass.cs.gigapaxos.paxospackets.RequestPacket;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -99,7 +100,9 @@ public class MyDBReplicableAppGP implements Replicable {
 		// TODO: execute the request by sending it to the data store
 		try{
 			// execute request here
-			String reqString = request.toString();
+			String reqString = ((RequestPacket) request).requestValue;
+			System.out.println(reqString);
+
 			this.session.execute(reqString);
 		}
 		catch(Exception e){
