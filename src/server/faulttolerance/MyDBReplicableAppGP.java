@@ -59,8 +59,6 @@ public class MyDBReplicableAppGP implements Replicable {
     private Session session;
 	private String keyspace;
 	private HashMap<String, String> states;
-	private HashMap<String, ArrayList<Object>> eventHash;
-	private int stateNumber = 0;
 
 	/**
 	 * All Gigapaxos apps must either support a no-args constructor or a
@@ -76,10 +74,9 @@ public class MyDBReplicableAppGP implements Replicable {
 	public MyDBReplicableAppGP(String[] args) throws IOException {
 		// TODO: setup connection to the data store and keyspace
 		this.cluster = Cluster.builder().addContactPoint("127.0.0.1").build();
-		this.keyspace = args[0];
+		this.keyspace = args[0]; //store keyspace name to retrieve state from cassandra
 		this.session = this.cluster.connect(this.keyspace);
-		this.states = new HashMap<String, String>();
-		this.stateNumber = 0;
+		this.states = new HashMap<String, String>(); // a hashmap to store state with key as application name, and value as state
         this.session.execute("create table if not exists users (lastname text, age int, city text, email text, firstname text, PRIMARY KEY (lastname))");
 	}
 
@@ -109,7 +106,7 @@ public class MyDBReplicableAppGP implements Replicable {
 	@Override
 	public boolean execute(Request request) {
 		try{
-			String reqString = ((RequestPacket) request).requestValue;
+			String reqString = ((RequestPacket) request).requestValue; //get cassandra-cqlsh command from request
 			this.session.execute(reqString);
 		}
 		catch(Exception e){
@@ -127,15 +124,15 @@ public class MyDBReplicableAppGP implements Replicable {
 	@Override
 	public String checkpoint(String s) {
 		// TODO:
-		ResultSet results = this.session.execute("SELECT * FROM " + this.keyspace + ".grade");
+		ResultSet results = this.session.execute("SELECT * FROM " + this.keyspace + ".grade"); // get all rows from grade table in cassandra
 		String fullState = "";
 		for (Row row : results) {
 			int Id = row.getInt("id");
 			List<Integer>events = row.getList("events", Integer.class);
-			String cmd = "update grade SET events="+ events.toString() +" where id=" + Id + ";";
-			fullState += cmd+"\n";
+			String cmd = "update grade SET events="+ events.toString() +" where id=" + Id + ";"; //write update command for each row in grade table
+			fullState += cmd+"\n"; //append all update commands to fullState
 		}
-		this.states.put(s, fullState);
+		this.states.put(s, fullState); //store fullState in states table with key as application name
 		return fullState;
 	}
 
@@ -151,9 +148,9 @@ public class MyDBReplicableAppGP implements Replicable {
 		// TODO:
 		try{
 			if (s1.length() > 0 && !s1.equals("{}")){
-				String[] commands = s1.split("\n");
+				String[] commands = s1.split("\n"); //split update command for each row in grade table from fullstate
 				for (String cmd : commands){
-					this.session.execute(cmd);
+					this.session.execute(cmd); //execute each update command in grade table
 				}
 			}
 		}
